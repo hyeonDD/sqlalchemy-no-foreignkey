@@ -1,7 +1,7 @@
 from typing import Union
 from model.post import Post
-from model.comment import Comment
-from model.post_comment import Post_Comment
+from model.tag import Tag
+from model.post_tag import Post_Tag
 
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker, Session
@@ -29,15 +29,15 @@ def create_post(*, session: Session, post_in: dict) -> Post:
     session.add(db_obj)
     session.commit()
     # relationship에 매핑시킨 속성 refresh
-    session.refresh(db_obj, attribute_names=['comments'])
+    session.refresh(db_obj, attribute_names=['tags'])
     return db_obj
 
 
-def create_comment(*, session: Session, comment_in: dict) -> Comment:
+def create_tag(*, session: Session, tag_in: dict) -> Tag:
     """
-    댓글 만드는 기능
+    태그 만드는 기능
     """
-    db_obj = Comment(**comment_in)
+    db_obj = Tag(**tag_in)
     session.add(db_obj)
     session.commit()
     # relationship에 매핑시킨 속성 refresh
@@ -45,7 +45,7 @@ def create_comment(*, session: Session, comment_in: dict) -> Comment:
     return db_obj
 
 
-def get_model_multi(*, session: Session, model: Union[Post, Post_Comment, Comment]) -> Union[Post, Post_Comment, Comment]:
+def get_model_multi(*, session: Session, model: Union[Post, Post_Tag, Tag]) -> Union[Post, Post_Tag, Tag]:
     query = select(model)
     result = session.execute(query)
     data = result.scalars().all()
@@ -61,30 +61,30 @@ if __name__ == '__main__':
     post2 = create_post(session=session, post_in={'title': 'm2m test2글 제목입니다',
                                                   'description': 'm2m test2 설명'})
 
-    comment1 = create_comment(session=session, comment_in={
-                              'content': 'm2m test1 댓글1 입니다.'})
-    comment2 = create_comment(session=session, comment_in={
-                              'content': 'm2m test1 댓글2 입니다.'})
-    comment3 = create_comment(session=session, comment_in={
-                              'content': 'm2m test2 댓글3 입니다.'})
-    comment4 = create_comment(session=session, comment_in={
-                              'content': 'm2m test2 댓글4 입니다.'})
+    tag1 = create_tag(session=session, tag_in={
+        'content': 'm2m test1 태그1 입니다.'})
+    tag2 = create_tag(session=session, tag_in={
+        'content': 'm2m test1 태그2 입니다.'})
+    tag3 = create_tag(session=session, tag_in={
+        'content': 'm2m test2 태그3 입니다.'})
+    tag4 = create_tag(session=session, tag_in={
+        'content': 'm2m test2 태그4 입니다.'})
 
-    # 중간 테이블인 post_comment에 post와 comment 저장
+    # 중간 테이블인 post_tag에 post와 tag 저장
 
-    comment1.posts.append(post1)
-    comment2.posts.append(post1)
-    comment3.posts.append(post2)
-    comment4.posts.append(post2)
+    tag1.posts.append(post1)
+    tag2.posts.append(post1)
+    tag3.posts.append(post2)
+    tag4.posts.append(post2)
     session.commit()
 
     # post로 확인
-    print('post1의 댓글들')
-    print(post1.in_comments)
-    print('post2의 댓글들')
-    print(post2.in_comments)
-    # comment로 확인
-    print(f'comment1은 이 글의{comment1.in_posts} 댓글입니다.')
-    print(f'comment2은 이 글의{comment2.in_posts} 댓글입니다.')
-    print(f'comment3은 이 글의{comment3.in_posts} 댓글입니다.')
-    print(f'comment4은 이 글의{comment4.in_posts} 댓글입니다.')
+    print('post1의 태그들')
+    print(post1.in_tags)
+    print('post2의 태그들')
+    print(post2.in_tags)
+    # tag로 확인
+    print(f'tag1은 이 글의{tag1.in_posts} 태그입니다.')
+    print(f'tag2은 이 글의{tag2.in_posts} 태그입니다.')
+    print(f'tag3은 이 글의{tag3.in_posts} 태그입니다.')
+    print(f'tag4은 이 글의{tag4.in_posts} 태그입니다.')

@@ -8,15 +8,15 @@ class Post(Base):
     title = Column(String(255), nullable=False)
     description = Column(String(500), nullable=False)
 
-    comments = relationship(  # comment랑 다대다 관계
-        'Comment',
-        secondary='post_comment',
-        primaryjoin='Post.id == post_comment.c.post_id',
-        secondaryjoin='post_comment.c.comment_id == Comment.id',
+    tags = relationship(  # tag랑 다대다 관계
+        'Tag',
+        secondary='post_tag',
+        primaryjoin='Post.id == post_tag.c.post_id',
+        secondaryjoin='post_tag.c.tag_id == Tag.id',
         back_populates='posts',
         lazy='selectin'
     )
 
     @property
-    def in_comments(self):
-        return [comment.content for comment in self.comments]
+    def in_tags(self):
+        return [tag.content for tag in self.tags]
